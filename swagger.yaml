@@ -1,10 +1,10 @@
 ---
-swagger: '2.0'
+swagger: "2.0"
 info:
-  title: 'Margin Estimator API'
+  title: "Margin Estimator API"
   version: "2.0.0"
   description: Margin Account Management 
-  termsOfService: 'https://github.com/freight-trust/legal/blob/master/src/terms-of-service.md'
+  termsOfService: "https://github.com/freight-trust/legal/blob/master/src/terms-of-service.md"
 host: margin.dev.freighttrust.com
 basePath: /market/contracts-margin/2.0.0/
 schemes:
@@ -12,19 +12,19 @@ schemes:
 paths:
   /products:
     get:
-      summary: 'List All Products'
+      summary: "List All Products"
       description: >-
         Lists all exchange-traded products
         Only `product` and `instrument_type` are returned by default.
         Remaining attributes (see response) are returned only if specified in `extrafields`.
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
-        - $ref: '#/parameters/extrafields'
-        - $ref: '#/parameters/business_date'
-        - $ref: '#/parameters/live'
-        - $ref: '#/parameters/live_timestamp'
+        - $ref: "#/parameters/x_fcx_apikey"
+        - $ref: "#/parameters/extrafields"
+        - $ref: "#/parameters/business_date"
+        - $ref: "#/parameters/live"
+        - $ref: "#/parameters/live_timestamp"
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -45,7 +45,7 @@ paths:
                   margin_style_flag: T
                   exercise_style_flag: E
                   product_settlement_type: CASH
-                  final_settlement_time: '09:00'
+                  final_settlement_time: "09:00"
                   product_tick_size: 0.1
                   product_tick_value: 1.0
                   liquidation_group: PEQ01
@@ -54,18 +54,18 @@ paths:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               products:
                 type: array
                 items:
                   type: object
                   properties:
                     product:
-                      $ref: '#/definitions/product_id'
+                      $ref: "#/definitions/product_id"
                     instrument_type:
                       type: string
                       enum: [future,option]
@@ -90,7 +90,7 @@ paths:
                       enum: [T,F]
                       description: T for traditional, F for future-style
                     exercise_style_flag:
-                      $ref: '#/definitions/exercise_style_flag'
+                      $ref: "#/definitions/exercise_style_flag"
                     product_settlement_type:
                       type: string
                       enum: [PHYSICAL,CASH]
@@ -101,7 +101,7 @@ paths:
                     product_tick_value:
                       type: number
                     liquidation_group:
-                      $ref: '#/definitions/liquidation_group'
+                      $ref: "#/definitions/liquidation_group"
                     xm_eligibility:
                       type: boolean
                   required:
@@ -115,18 +115,18 @@ paths:
         Attributes upto `iid` are returned by default.
         Remaining attributes (see response) are returned only if specified in `extrafields`.
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
-        - $ref: '#/parameters/extrafields'
-        - $ref: '#/parameters/business_date'
-        - $ref: '#/parameters/live'
-        - $ref: '#/parameters/live_timestamp'
+        - $ref: "#/parameters/x_fcx_apikey"
+        - $ref: "#/parameters/extrafields"
+        - $ref: "#/parameters/business_date"
+        - $ref: "#/parameters/live"
+        - $ref: "#/parameters/live_timestamp"
         - name: products
           in: query
           description: Product ID, there can be multiple instances of the parameter to request series for several products
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -141,50 +141,50 @@ paths:
               live: false
               live_timestamp: 0
               list_series:
-                - product_id: '0x12349876'
+                - product_id: "0x12349876"
                   contract_maturity: 201906
                   expiry_maturity: 201906
                   call_put_flag: C
                   exercise_price: 160
-                  version_number: '0'
+                  version_number: "0"
                   iid: 18249016
           schema:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               list_series:
                 type: array
                 items:
                   type: object
                   properties:
                     product_id:
-                      $ref: '#/definitions/product_id'
+                      $ref: "#/definitions/product_id"
                     contract_maturity:
-                      $ref: '#/definitions/contract_maturity'
+                      $ref: "#/definitions/contract_maturity"
                     expiry_maturity:
-                      $ref: '#/definitions/expiry_maturity'
+                      $ref: "#/definitions/expiry_maturity"
                     call_put_flag:
-                      $ref: '#/definitions/call_put_flag'
+                      $ref: "#/definitions/call_put_flag"
                     exercise_price:
-                      $ref: '#/definitions/exercise_price'
+                      $ref: "#/definitions/exercise_price"
                     version_number:
-                      $ref: '#/definitions/version_number'
+                      $ref: "#/definitions/version_number"
                     iid:
-                      $ref: '#/definitions/iid'
+                      $ref: "#/definitions/iid"
                     act_trade_unit_no:
                       type: number
                     days_to_expiration:
                       type: number
                     trade_unit_value:
                       type: number
-                  ## Going off  CME's stuff 
+                  ## Going off  CME"s stuff 
                     exercise_style_flag:
-                      $ref: '#/definitions/exercise_style_flag'
+                      $ref: "#/definitions/exercise_style_flag"
                   required:
                     - product_id
                     - contract_maturity
@@ -197,12 +197,12 @@ paths:
       summary: List All Clearing Currencies
       description: List of clearing currencies that can be used in `estimator` request.
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
-        - $ref: '#/parameters/business_date'
-        - $ref: '#/parameters/live'
-        - $ref: '#/parameters/live_timestamp'
+        - $ref: "#/parameters/x_fcx_apikey"
+        - $ref: "#/parameters/business_date"
+        - $ref: "#/parameters/live"
+        - $ref: "#/parameters/live_timestamp"
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -220,11 +220,11 @@ paths:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               clearing_currencies:
                 type: array
                 items:
@@ -234,11 +234,11 @@ paths:
       summary: List Available Snapshots
       description: List of end-of-day or start-of-day snapshots that can be used in other requests.
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
-        - $ref: '#/parameters/business_date_from'
-        - $ref: '#/parameters/business_date_to'
+        - $ref: "#/parameters/x_fcx_apikey"
+        - $ref: "#/parameters/business_date_from"
+        - $ref: "#/parameters/business_date_to"
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -259,20 +259,20 @@ paths:
                   type: object
                   properties:
                     business_date:
-                      $ref: '#/definitions/business_date'
+                      $ref: "#/definitions/business_date"
                     live:
-                      $ref: '#/definitions/live'
+                      $ref: "#/definitions/live"
                     otc_available:
-                      $ref: '#/definitions/otc_available'
+                      $ref: "#/definitions/otc_available"
   /live_snapshots:
     get:
       summary: List Available Live Snapshots for Given Day
       description: List of live (intraday) snapshots for given business_date. Contains also start-of-day snapshot.
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
-        - $ref: '#/parameters/business_date'
+        - $ref: "#/parameters/x_fcx_apikey"
+        - $ref: "#/parameters/business_date"
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -295,13 +295,13 @@ paths:
                   type: object
                   properties:
                     business_date:
-                      $ref: '#/definitions/business_date'
+                      $ref: "#/definitions/business_date"
                     live:
-                      $ref: '#/definitions/live'
+                      $ref: "#/definitions/live"
                     otc_available:
-                      $ref: '#/definitions/otc_available'
+                      $ref: "#/definitions/otc_available"
                     live_timestamp:
-                      $ref: '#/definitions/live_timestamp'
+                      $ref: "#/definitions/live_timestamp"
   /estimator:
     post:
       summary: Margin Calculation Request
@@ -310,17 +310,17 @@ paths:
 
         Portfolio is sent in the request and margin is returned as a response.
         The request can contain exchange traded derivatives (ETD) portfolio or OTC portfolio or both:
-  parameters:
-        - ETD is submitted as
-              - etd_portfolio: JSON array, see request model
 
-        - OTC is submitted as
+        - ETD is submitted as
+        - etd_portfolio: JSON array, see request model
+
+          - OTC is submitted as
           - otc_csv: with trades in CSV format known from Margin Calculator or Prisma Margin Estimator, see description bellow
           - otc_sensitivities: with sensitivities in CSV format
           - otc_fpml: FpMl
           - otc_cb202: i.e. EurexOTC CB202 or CB207 report
 
-  parameters:
+
         - Future: `product`, `maturity` as YYYYMM (DD can be added but is ignored)
 
         - Option: `product`, `maturity` as YYYYMM (DD can be added but is ignored), `call_put_flag`, `exercise_price`
@@ -332,59 +332,8 @@ paths:
 
 
         Example of minimal request with one future contract:
-
-      parameters: Basic OTC trade attributes
-        - internalTradeID*: id of the trade to distinguish it in drilldown, must be unique
-
-        - tradeType*: IRS (or Swap), OIS, FRA, ZCIS
-
-        - currency*: ISO code of currency, e.g. USDC, CHF, USD, GBP
-
-        - effectiveDate*: effective date as DD/MM/YYYY, e.g. 20/12/2018
-
-        - terminationDate*: termination date as DD/MM/YYYY, e.g. 20/12/2028
-
       parameters:
-        ### Pay leg attributes
-
-        - payLegType*: fixedLeg or floatingLeg
-
-        - payLegSpread: rate for fixedLeg in %, or spread (optional) for floatingLeg in bp
-
-        - payLegIndex: index for floatingLeg, if empty, default index for the currency is selected
-
-        - payInterestFixedAmount: allowed for fixedLeg only, lump sum paid at maturity of zero coupon swap
-
-        - payNotional*: notional
-
-        - payPaymentPeriod*: 1M, 3M, 6M, 12M, 1Y, 1T (for zero-coupon)
-
-        - payPeriodStartVNS: fill only for VNS
-
-        - payCompounding: fill only for compounding swap, Flat or Straight
-
-        - payCompoundingIndexPeriod: period for compounding swap, 1M, 3M, 6M, 12M, 1Y
-
-        - payStub: fill only if the leg has a stub, LongFinal, LongInitial, ShortInitial, ShortFinal
-
-        - payFirstRate: first pre-defined rate
-
-        - payFirstInterpolationTenor: stub interpolation tenor for floatingLeg, 1W, 1M, 3M, 6M, ...
-
-        - paySecondInterpolationTenor: stub interpolation tenor for floatingLeg, 1W, 1M, 3M, 6M, ...
-
-        - payDayCountMethod*: 30/360, 30E/360, 30E/360.ISDA, ACT/360, ACT/365.FIXED, ACT/ACT.ISDA, ACT/365.ISDA, ACT/ACT.ICMA, ACT/ACT.ISMA, 1/1, ...
-
-        - payBusinessDayConvention: MODFOLLOWING, FOLLOWING, PRECEDING, ...
-
-        - payPaymentCalendar: EUTA, CHZU, GBLO, USNY, DEFR, ITMI, FRPA, ESMA, BEBR, JPTO, DKCO, NOOS, SEST, PLWA, ... calendars can be combined with "+"
-
-        - payAdjustment: ADJUSTED, UNADJUSTED, MAT_UNADJUSTED, ...
-
-        - payRollMethod: Standard, IMM, EOM, ...
-
-      parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: "#/parameters/x_fcx_apikey"
         - name: body
           in: body
           schema:
@@ -405,9 +354,9 @@ paths:
                       net_ls_balance: -10
             properties:
               snapshot:
-                $ref: '#/definitions/snapshot'
+                $ref: "#/definitions/snapshot"
               clearing_currency:
-                $ref: '#/definitions/clearing_currency'
+                $ref: "#/definitions/clearing_currency"
               is_cross_margined:
                 type: boolean
                 description: enable cross-margining between OTC and Fixed Income
@@ -431,40 +380,40 @@ paths:
                         type: object
                         properties:
                           line_no:
-                            $ref: '#/definitions/line_no'
+                            $ref: "#/definitions/line_no"
                           product_id:
-                            $ref: '#/definitions/product_id'
+                            $ref: "#/definitions/product_id"
                           maturity:
-                            $ref: '#/definitions/maturity'
+                            $ref: "#/definitions/maturity"
                           call_put_flag:
-                            $ref: '#/definitions/call_put_flag'
+                            $ref: "#/definitions/call_put_flag"
                           exercise_price:
-                            $ref: '#/definitions/exercise_price'
+                            $ref: "#/definitions/exercise_price"
                           version_number:
-                            $ref: '#/definitions/version_number'
+                            $ref: "#/definitions/version_number"
                           iid:
-                            $ref: '#/definitions/iid'
+                            $ref: "#/definitions/iid"
                           instrument_type:
-                            $ref: '#/definitions/instrument_type'
+                            $ref: "#/definitions/instrument_type"
                           exercise_style:
-                            $ref: '#/definitions/exercise_style'
+                            $ref: "#/definitions/exercise_style"
                           net_ea:
-                            $ref: '#/definitions/net_ea'
+                            $ref: "#/definitions/net_ea"
                           net_ls_balance:
-                            $ref: '#/definitions/net_ls_balance'
+                            $ref: "#/definitions/net_ls_balance"
                         required:
                           - line_no
                           - net_ls_balance
                     otc_csv:
-                      $ref: '#/definitions/otc_csv'
+                      $ref: "#/definitions/otc_csv"
                     otc_sensitivities:
-                      $ref: '#/definitions/otc_sensitivities'
+                      $ref: "#/definitions/otc_sensitivities"
                     otc_cb202:
-                      $ref: '#/definitions/otc_cb202'
+                      $ref: "#/definitions/otc_cb202"
                     otc_fpml:
-                      $ref: '#/definitions/otc_fpml'
+                      $ref: "#/definitions/otc_fpml"
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -475,7 +424,7 @@ paths:
               clearing_currency: USDC
               errors:
                 - line_no: 2
-                  error_msg: 'Line 1 instrument iid not recognized: 736947'
+                  error_msg: "Line 1 instrument iid not recognized: 736947"
               portfolio_margin:
                 - liquidation_group: PEQ01
                   liquidation_group_split: PFI01_HP2_T0-99999
@@ -495,7 +444,7 @@ paths:
                   product_id: OGBL
                   call_put_flag: C
                   exercise_price: 160
-                  version_number: '0'
+                  version_number: "0"
                   iid: 18249016
                   maturity: 201806
                   net_ls_balance: 10
@@ -509,13 +458,13 @@ paths:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               clearing_currency:
-                $ref: '#/definitions/clearing_currency'
+                $ref: "#/definitions/clearing_currency"
               errors:
                 type: array
                 items:
@@ -532,9 +481,9 @@ paths:
                   type: object
                   properties:
                     liquidation_group:
-                      $ref: '#/definitions/liquidation_group'
+                      $ref: "#/definitions/liquidation_group"
                     liquidation_group_split:
-                      $ref: '#/definitions/liquidation_group_split'
+                      $ref: "#/definitions/liquidation_group_split"
                     initial_margin:
                       type: number
                       description: Initial margin on liquidation group split level, equals to market risk plus add ons
@@ -578,33 +527,33 @@ paths:
                   type: object
                   properties:
                     line_no:
-                      $ref: '#/definitions/line_no'
+                      $ref: "#/definitions/line_no"
                     product_id:
-                      $ref: '#/definitions/product_id'
+                      $ref: "#/definitions/product_id"
                     maturity:
-                      $ref: '#/definitions/maturity'
+                      $ref: "#/definitions/maturity"
                     call_put_flag:
-                      $ref: '#/definitions/call_put_flag'
+                      $ref: "#/definitions/call_put_flag"
                     exercise_price:
-                      $ref: '#/definitions/exercise_price'
+                      $ref: "#/definitions/exercise_price"
                     version_number:
-                      $ref: '#/definitions/version_number'
+                      $ref: "#/definitions/version_number"
                     iid:
-                      $ref: '#/definitions/iid'
+                      $ref: "#/definitions/iid"
                     instrument_type:
-                      $ref: '#/definitions/instrument_type'
+                      $ref: "#/definitions/instrument_type"
                     exercise_style:
-                      $ref: '#/definitions/exercise_style'
+                      $ref: "#/definitions/exercise_style"
                     net_ls_balance:
-                      $ref: '#/definitions/net_ls_balance'
+                      $ref: "#/definitions/net_ls_balance"
                     liquidation_group:
-                      $ref: '#/definitions/liquidation_group'
+                      $ref: "#/definitions/liquidation_group"
                     liquidation_group_split:
-                      $ref: '#/definitions/liquidation_group_split'
+                      $ref: "#/definitions/liquidation_group_split"
                     component_margin:
-                      $ref: '#/definitions/component_margin'
+                      $ref: "#/definitions/component_margin"
                     component_margin_currency:
-                      $ref: '#/definitions/component_margin_currency'
+                      $ref: "#/definitions/component_margin_currency"
                     premium_margin:
                       type: number
                       description: Premium margin for the position
@@ -618,11 +567,11 @@ paths:
                   type: object
                   properties:
                     trade_id:
-                      $ref: '#/definitions/trade_id'
+                      $ref: "#/definitions/trade_id"
                     liquidation_group:
-                      $ref: '#/definitions/liquidation_group'
+                      $ref: "#/definitions/liquidation_group"
                     liquidation_group_split:
-                      $ref: '#/definitions/liquidation_group_split'
+                      $ref: "#/definitions/liquidation_group_split"
                     npv:
                       type: number
                       description: Net Present Value of the trade in notional currency
@@ -630,21 +579,21 @@ paths:
                       type: number
                       description: DV01 sensitivity of the trade in notional currency
                     component_margin:
-                      $ref: '#/definitions/component_margin'
+                      $ref: "#/definitions/component_margin"
                     component_margin_currency:
-                      $ref: '#/definitions/component_margin_currency'
+                      $ref: "#/definitions/component_margin_currency"
                     type:
-                      $ref: '#/definitions/otc_type'
+                      $ref: "#/definitions/otc_type"
                     pay:
-                      $ref: '#/definitions/pay'
+                      $ref: "#/definitions/pay"
                     receive:
-                      $ref: '#/definitions/receive'
+                      $ref: "#/definitions/receive"
                     notional:
-                      $ref: '#/definitions/notional'
+                      $ref: "#/definitions/notional"
                     notional_currency:
-                      $ref: '#/definitions/notional_currency'
+                      $ref: "#/definitions/notional_currency"
                     maturity:
-                      $ref: '#/definitions/otc_maturity'
+                      $ref: "#/definitions/otc_maturity"
   /otc_trade_details:
     post:
       summary: OTC Trade Details
@@ -652,7 +601,7 @@ paths:
         Return a short human-readable description of OTC trade, e.g. to display on a GUI.
         The description is not complete, i.e. it is not sufficient to evaluate the trade.
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: "#/parameters/x_fcx_apikey"
         - name: body
           in: body
           schema:
@@ -664,7 +613,7 @@ paths:
                     csv: internalTradeID,tradeType,currency,effectiveDate,terminationDate,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod\n1,FRA,USDC,20/12/2018,20/08/2019,fixedLeg,0.15,,,100000000,3M,,,,,,,,ACT/360,,,,,floatingLeg,,,,100000000,3M,,,,,,,,ACT/360,,,,
             properties:
               snapshot:
-                $ref: '#/definitions/snapshot'
+                $ref: "#/definitions/snapshot"
               portfolio_components:
                 type: array
                 description: array of portfolio components
@@ -679,13 +628,13 @@ paths:
                       description: type of this component
                       example: etd_portfolio
                     otc_csv:
-                      $ref: '#/definitions/otc_csv'
+                      $ref: "#/definitions/otc_csv"
                     otc_cb202:
-                      $ref: '#/definitions/otc_cb202'
+                      $ref: "#/definitions/otc_cb202"
                     otc_fpml:
-                      $ref: '#/definitions/otc_fpml'
+                      $ref: "#/definitions/otc_fpml"
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -705,11 +654,11 @@ paths:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               otc_trade_details:
                 type: array
                 items:
@@ -717,19 +666,19 @@ paths:
                   description: details of one OTC trade
                   properties:
                     trade_id:
-                      $ref: '#/definitions/trade_id'
+                      $ref: "#/definitions/trade_id"
                     type:
-                      $ref: '#/definitions/otc_type'
+                      $ref: "#/definitions/otc_type"
                     pay:
-                      $ref: '#/definitions/pay'
+                      $ref: "#/definitions/pay"
                     receive:
-                      $ref: '#/definitions/receive'
+                      $ref: "#/definitions/receive"
                     notional:
-                      $ref: '#/definitions/notional'
+                      $ref: "#/definitions/notional"
                     notional_currency:
-                      $ref: '#/definitions/notional_currency'
+                      $ref: "#/definitions/notional_currency"
                     maturity:
-                      $ref: '#/definitions/otc_maturity'
+                      $ref: "#/definitions/otc_maturity"
   /otc_sensitivites:
     post:
       summary: OTC Sensitivities
@@ -739,7 +688,7 @@ paths:
         url: https://github.com/Deutsche-Boerse-Risk/CloudPrismaMarginEstimator/raw/master/templates/otc/OTC_sensitivities_template.xlsm
         description: Example of the DV01 Sensitivities table as Excel sheet
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: "#/parameters/x_fcx_apikey"
         - name: body
           in: body
           schema:
@@ -751,7 +700,7 @@ paths:
                     csv: internalTradeID,tradeType,currency,effectiveDate,terminationDate,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod\n1,FRA,USDC,20/12/2018,20/08/2019,fixedLeg,0.15,,,100000000,3M,,,,,,,,ACT/360,,,,,floatingLeg,,,,100000000,3M,,,,,,,,ACT/360,,,,
             properties:
               snapshot:
-                $ref: '#/definitions/snapshot'
+                $ref: "#/definitions/snapshot"
               portfolio_components:
                 type: array
                 description: array of portfolio components
@@ -766,13 +715,13 @@ paths:
                       description: type of this component
                       example: otc_csv
                     otc_csv:
-                      $ref: '#/definitions/otc_csv'
+                      $ref: "#/definitions/otc_csv"
                     otc_cb202:
-                      $ref: '#/definitions/otc_cb202'
+                      $ref: "#/definitions/otc_cb202"
                     otc_fpml:
-                      $ref: '#/definitions/otc_fpml'
+                      $ref: "#/definitions/otc_fpml"
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -791,11 +740,11 @@ paths:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               curves:
                 type: array
                 items:
@@ -809,7 +758,7 @@ paths:
                   description: DV01 for different curves of one maturity
                   properties:
                     maturity:
-                      $ref: '#/definitions/otc_maturity'
+                      $ref: "#/definitions/otc_maturity"
                     dv01:
                       type: array
                       items:
@@ -827,7 +776,7 @@ paths:
         Calculate analytical greeks (sensitivities) for given exchange traded instruments.
 
         The instruments are specified by a technical `iid` that can be obtained by `series` query.
-        Two types of greeks are 'typically' (read: easier to?) offered:
+        Two types of greeks are "typically" (read: easier to?) offered:
 
         - numerical derivative of change in instrument price in product currency w.r.t. change in given variable, e.g. DELTA is w.r.t. change in underlying price
 
@@ -837,7 +786,7 @@ paths:
 
         To get a position greek, the instrument greek has to be multiplied by position size and trade unit value (TUV).
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: "#/parameters/x_fcx_apikey"
         - name: body
           in: body
           schema:
@@ -854,18 +803,18 @@ paths:
                 - 27471356
             properties:
               snapshot:
-                $ref: '#/definitions/snapshot'
+                $ref: "#/definitions/snapshot"
               greek_types:
-                $ref: '#/definitions/greek_types'
+                $ref: "#/definitions/greek_types"
               underlying_shifts_rel:
-                $ref: '#/definitions/underlying_shifts_rel'
+                $ref: "#/definitions/underlying_shifts_rel"
               iids:
-                $ref: '#/definitions/iids'
+                $ref: "#/definitions/iids"
             required:
               - greek_types
               - iids
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -887,15 +836,15 @@ paths:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               greek_types:
-                $ref: '#/definitions/greek_types'
+                $ref: "#/definitions/greek_types"
               underlying_shifts_rel:
-                $ref: '#/definitions/underlying_shifts_rel'
+                $ref: "#/definitions/underlying_shifts_rel"
               greeks:
                 type: array
                 items:
@@ -903,7 +852,7 @@ paths:
                   description: Array of arrays of greeks for given instrument per greek type and per underlying shift rel, in the order given by type and shift vectors
                   properties:
                     iid:
-                      $ref: '#/definitions/iid'
+                      $ref: "#/definitions/iid"
                     values:
                       type: array
                       items:
@@ -918,7 +867,7 @@ paths:
         For futures, volatility shift has no effect and the underlying price shift changes
         directly the future price, theoretical pricing model is not used.
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: "#/parameters/x_fcx_apikey"
         - name: body
           in: body
           schema:
@@ -935,19 +884,19 @@ paths:
                 - 27471356
             properties:
               snapshot:
-                $ref: '#/definitions/snapshot'
+                $ref: "#/definitions/snapshot"
               underlying_shifts_rel:
-                $ref: '#/definitions/underlying_shifts_rel'
+                $ref: "#/definitions/underlying_shifts_rel"
               volatility_shifts:
-                $ref: '#/definitions/volatility_shifts'
+                $ref: "#/definitions/volatility_shifts"
               volatility_shift_type:
-                $ref: '#/definitions/volatility_shift_type'
+                $ref: "#/definitions/volatility_shift_type"
               iids:
-                $ref: '#/definitions/iids'
+                $ref: "#/definitions/iids"
             required:
               - iids
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           examples:
@@ -956,10 +905,10 @@ paths:
               live: false
               live_timestamp: 0
               underlying_shifts_rel:
-                - 0.01
+                - '0.01'
               volatility_shifts:
-                - -0.1
-                - 0.1
+                - '-0.1'
+                - '+0.1'
               volatility_shift_type: RELATIVE
               stress_matrix:
                 - iid: 26807581
@@ -970,17 +919,17 @@ paths:
             type: object
             properties:
               business_date:
-                $ref: '#/definitions/business_date'
+                $ref: "#/definitions/business_date"
               live:
-                $ref: '#/definitions/live'
+                $ref: "#/definitions/live"
               live_timestamp:
-                $ref: '#/definitions/live_timestamp'
+                $ref: "#/definitions/live_timestamp"
               underlying_shifts_rel:
-                $ref: '#/definitions/underlying_shifts_rel'
+                $ref: "#/definitions/underlying_shifts_rel"
               volatility_shifts:
-                $ref: '#/definitions/volatility_shifts'
+                $ref: "#/definitions/volatility_shifts"
               volatility_shift_type:
-                $ref: '#/definitions/volatility_shift_type'
+                $ref: "#/definitions/volatility_shift_type"
               stress_matrix:
                 type: array
                 items:
@@ -988,7 +937,7 @@ paths:
                   description: Array of arrays of prices for given instrument per underlying price shift and volatility shift, in the order given by price and vola shift vectors
                   properties:
                     iid:
-                      $ref: '#/definitions/iid'
+                      $ref: "#/definitions/iid"
                     values:
                       type: array
                       items:
@@ -999,7 +948,7 @@ paths:
     get:
       summary: Read configuration parameter
       parameters:
-        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: "#/parameters/x_fcx_apikey"
         - name: param
           in: path
           description: name of the parameter
@@ -1096,11 +1045,11 @@ definitions:
     description: Optional point in time as of which the result is calculated. If only business_date is specified, latest snapshot from that business date is used. If only live=False is specified, last EOD is used. The timestamp is used only when live is true.
     properties:
       business_date:
-        $ref: '#/definitions/business_date'
+        $ref: "#/definitions/business_date"
       live:
-        $ref: '#/definitions/live'
+        $ref: "#/definitions/live"
       live_timestamp:
-        $ref: '#/definitions/live_timestamp'
+        $ref: "#/definitions/live_timestamp"
   clearing_currency:
     type: string
     description: currency code of the currency in which the result should be calculated
@@ -1120,7 +1069,7 @@ definitions:
     example: 202812
   call_put_flag:
     type: string
-    enum: [C,P,'']
+    enum: [C,P,""]
     description: Call or put flag for options. Empty for futures
     example: P
   exercise_price:
@@ -1130,8 +1079,8 @@ definitions:
   version_number:
     type: string
     description: Version number. Valid for both options and futures
-    example: '0'
-    default: '0'
+    example: "0"
+    default: "0"
   iid:
     type: number
     description: Technical instrument ID. Needed for analytical requests - greeks, stress prices. If provided in request, all other key attributes are ignored
@@ -1151,12 +1100,12 @@ definitions:
     example: Flex Option
   exercise_style:
     type: string
-    enum: [USDCOPEAN,AMERICAN,'']
+    enum: [USDCOPEAN,AMERICAN,""]
     description: Exercise style for options. Mandatory for Flex Option, ignored for standard options - product setup used
     example: AMERICAN
   exercise_style_flag:
     type: string
-    enum: [E,A,'']
+    enum: [E,A,""]
     description: E for European, A for American, empty for futures; can differ from product exercise style for Flex Option
     example: A
   net_ea:

@@ -1,718 +1,1294 @@
 ---
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "This is a sample server Petstore server.  You can find out more about\
-    \ Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).\
-    \  For this sample, you can use the api key `special-key` to test the authorization\
-    \ filters."
-  version: "1.0.5"
-  title: "Swagger Petstore"
-  termsOfService: "http://swagger.io/terms/"
-  contact:
-    email: "apiteam@swagger.io"
-  license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "petstore.swagger.io"
-basePath: "/v2"
-tags:
-- name: "pet"
-  description: "Everything about your Pets"
-  externalDocs:
-    description: "Find out more"
-    url: "http://swagger.io"
-- name: "store"
-  description: "Access to Petstore orders"
-- name: "user"
-  description: "Operations about user"
-  externalDocs:
-    description: "Find out more about our store"
-    url: "http://swagger.io"
+  title: 'Margin Estimator API'
+  version: "2.0.0"
+  description: Margin Account Management 
+  termsOfService: 'https://github.com/freight-trust/legal/blob/master/src/terms-of-service.md'
+host: margin.dev.freighttrust.com
+basePath: /market/contracts-margin/2.0.0/
 schemes:
-- "https"
-- "http"
+  - https
 paths:
-  /pet/{petId}/uploadImage:
+  /products:
+    get:
+      summary: 'List All Products'
+      description: >-
+        Lists all exchange-traded products
+        Only `product` and `instrument_type` are returned by default.
+        Remaining attributes (see response) are returned only if specified in `extrafields`.
+      parameters:
+        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: '#/parameters/extrafields'
+        - $ref: '#/parameters/business_date'
+        - $ref: '#/parameters/live'
+        - $ref: '#/parameters/live_timestamp'
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              products:
+                - product: 
+                  instrument_type: option
+                  clearing_house: FREIGHTCX
+                  prod_name: OPT ON SWISS MARKET INDEX
+                  prod_isin: CH0008616382
+                  underlying_isin: CH0009980894
+                  currency: CHF
+                  product_type: OINX
+                  extended_product_type:
+                  margin_style_flag: T
+                  exercise_style_flag: E
+                  product_settlement_type: CASH
+                  final_settlement_time: '09:00'
+                  product_tick_size: 0.1
+                  product_tick_value: 1.0
+                  liquidation_group: PEQ01
+                  xm_eligibility: false
+          schema:
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              products:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product:
+                      $ref: '#/definitions/product_id'
+                    instrument_type:
+                      type: string
+                      enum: [future,option]
+                      description: Product line, i.e. either future or option
+                    clearing_house:
+                      type: string
+                    prod_name:
+                      type: string
+                    prod_isin:
+                      type: string
+                    underlying_isin:
+                      type: string
+                    currency:
+                      type: string
+                    product_type:
+                      type: string
+                    extended_product_type:
+                      type: string
+                      description: refinement of product type, can be empty
+                    margin_style_flag:
+                      type: string
+                      enum: [T,F]
+                      description: T for traditional, F for future-style
+                    exercise_style_flag:
+                      $ref: '#/definitions/exercise_style_flag'
+                    product_settlement_type:
+                      type: string
+                      enum: [PHYSICAL,CASH]
+                    final_settlement_time:
+                      type: string
+                    product_tick_size:
+                      type: number
+                    product_tick_value:
+                      type: number
+                    liquidation_group:
+                      $ref: '#/definitions/liquidation_group'
+                    xm_eligibility:
+                      type: boolean
+                  required:
+                    - product
+                    - instrument_type
+  /series:
+    get:
+      summary: List Series of a Product
+      description: >-
+        List all series of exchange traded product(s).
+        Attributes upto `iid` are returned by default.
+        Remaining attributes (see response) are returned only if specified in `extrafields`.
+      parameters:
+        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: '#/parameters/extrafields'
+        - $ref: '#/parameters/business_date'
+        - $ref: '#/parameters/live'
+        - $ref: '#/parameters/live_timestamp'
+        - name: products
+          in: query
+          description: Product ID, there can be multiple instances of the parameter to request series for several products
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+
+              ## @dev - note: YAML is idiotic, numbers that are not for usage in `time` should contain more than 8 digits as it considers
+              ## 2050 base60 
+              ## also please explain to me this in YAML
+              ## lang: no
+              ## fucking dumb.
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              list_series:
+                - product_id: '0x12349876'
+                  contract_maturity: 201906
+                  expiry_maturity: 201906
+                  call_put_flag: C
+                  exercise_price: 160
+                  version_number: '0'
+                  iid: 18249016
+          schema:
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              list_series:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      $ref: '#/definitions/product_id'
+                    contract_maturity:
+                      $ref: '#/definitions/contract_maturity'
+                    expiry_maturity:
+                      $ref: '#/definitions/expiry_maturity'
+                    call_put_flag:
+                      $ref: '#/definitions/call_put_flag'
+                    exercise_price:
+                      $ref: '#/definitions/exercise_price'
+                    version_number:
+                      $ref: '#/definitions/version_number'
+                    iid:
+                      $ref: '#/definitions/iid'
+                    act_trade_unit_no:
+                      type: number
+                    days_to_expiration:
+                      type: number
+                    trade_unit_value:
+                      type: number
+                  ## Going off  CME's stuff 
+                    exercise_style_flag:
+                      $ref: '#/definitions/exercise_style_flag'
+                  required:
+                    - product_id
+                    - contract_maturity
+                    - expiry_maturity
+                    - version_number
+                    - iid
+  /clearing_currencies:
+    get:
+      # TL;DL == USD, and everyone else. OK JPY can come2.
+      summary: List All Clearing Currencies
+      description: List of clearing currencies that can be used in `estimator` request.
+      parameters:
+        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: '#/parameters/business_date'
+        - $ref: '#/parameters/live'
+        - $ref: '#/parameters/live_timestamp'
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              clearing_currencies:
+                - USDC
+                - CHF
+                - USD
+                - GBP
+                - KRUGERRAND
+          schema:
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              clearing_currencies:
+                type: array
+                items:
+                  type: string
+  /snapshots:
+    get:
+      summary: List Available Snapshots
+      description: List of end-of-day or start-of-day snapshots that can be used in other requests.
+      parameters:
+        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: '#/parameters/business_date_from'
+        - $ref: '#/parameters/business_date_to'
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              snapshots:
+                - business_date: 20200829
+                  live: false
+                  otc_available: true
+                - business_date: 20200801
+                  live: true
+                  otc_available: true
+          schema:
+            type: object
+            properties:
+              snapshots:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    business_date:
+                      $ref: '#/definitions/business_date'
+                    live:
+                      $ref: '#/definitions/live'
+                    otc_available:
+                      $ref: '#/definitions/otc_available'
+  /live_snapshots:
+    get:
+      summary: List Available Live Snapshots for Given Day
+      description: List of live (intraday) snapshots for given business_date. Contains also start-of-day snapshot.
+      parameters:
+        - $ref: '#/parameters/x_fcx_apikey'
+        - $ref: '#/parameters/business_date'
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              snapshots:
+                - business_date: 20200829
+                  live: true
+                  otc_available: true
+                  live_timestamp: 0
+                - business_date: 20200829
+                  live: true
+                  otc_available: true
+                  live_timestamp: 1562162876
+          schema:
+            type: object
+            properties:
+              snapshots:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    business_date:
+                      $ref: '#/definitions/business_date'
+                    live:
+                      $ref: '#/definitions/live'
+                    otc_available:
+                      $ref: '#/definitions/otc_available'
+                    live_timestamp:
+                      $ref: '#/definitions/live_timestamp'
+  /estimator:
     post:
-      tags:
-      - "pet"
-      summary: "uploads an image"
-      description: ""
-      operationId: "uploadFile"
-      consumes:
-      - "multipart/form-data"
-      produces:
-      - "application/json"
+      summary: Margin Calculation Request
+      description: >-
+        # Margin Calculation
+
+        Portfolio is sent in the request and margin is returned as a response.
+        The request can contain exchange traded derivatives (ETD) portfolio or OTC portfolio or both:
+  parameters:
+        - ETD is submitted as
+              - etd_portfolio: JSON array, see request model
+
+        - OTC is submitted as
+          - otc_csv: with trades in CSV format known from Margin Calculator or Prisma Margin Estimator, see description bellow
+          - otc_sensitivities: with sensitivities in CSV format
+          - otc_fpml: FpMl
+          - otc_cb202: i.e. EurexOTC CB202 or CB207 report
+
+  parameters:
+        - Future: `product`, `maturity` as YYYYMM (DD can be added but is ignored)
+
+        - Option: `product`, `maturity` as YYYYMM (DD can be added but is ignored), `call_put_flag`, `exercise_price`
+
+        - Flex Future: `instrument_type`: "Flex Future", `product`, `maturity` as YYYYMMDD
+
+        - Flex Option: `instrument_type`: "Flex Option", `product`, `maturity` as YYYYMMDD, `call_put_flag`, `exercise_price`, `exercise_style`
+
+
+
+        Example of minimal request with one future contract:
+
+      parameters: Basic OTC trade attributes
+        - internalTradeID*: id of the trade to distinguish it in drilldown, must be unique
+
+        - tradeType*: IRS (or Swap), OIS, FRA, ZCIS
+
+        - currency*: ISO code of currency, e.g. USDC, CHF, USD, GBP
+
+        - effectiveDate*: effective date as DD/MM/YYYY, e.g. 20/12/2018
+
+        - terminationDate*: termination date as DD/MM/YYYY, e.g. 20/12/2028
+
       parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to update"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "additionalMetadata"
-        in: "formData"
-        description: "Additional data to pass to server"
-        required: false
-        type: "string"
-      - name: "file"
-        in: "formData"
-        description: "file to upload"
-        required: false
-        type: "file"
-      responses:
-        200:
-          description: "successful operation"
+        ### Pay leg attributes
+
+        - payLegType*: fixedLeg or floatingLeg
+
+        - payLegSpread: rate for fixedLeg in %, or spread (optional) for floatingLeg in bp
+
+        - payLegIndex: index for floatingLeg, if empty, default index for the currency is selected
+
+        - payInterestFixedAmount: allowed for fixedLeg only, lump sum paid at maturity of zero coupon swap
+
+        - payNotional*: notional
+
+        - payPaymentPeriod*: 1M, 3M, 6M, 12M, 1Y, 1T (for zero-coupon)
+
+        - payPeriodStartVNS: fill only for VNS
+
+        - payCompounding: fill only for compounding swap, Flat or Straight
+
+        - payCompoundingIndexPeriod: period for compounding swap, 1M, 3M, 6M, 12M, 1Y
+
+        - payStub: fill only if the leg has a stub, LongFinal, LongInitial, ShortInitial, ShortFinal
+
+        - payFirstRate: first pre-defined rate
+
+        - payFirstInterpolationTenor: stub interpolation tenor for floatingLeg, 1W, 1M, 3M, 6M, ...
+
+        - paySecondInterpolationTenor: stub interpolation tenor for floatingLeg, 1W, 1M, 3M, 6M, ...
+
+        - payDayCountMethod*: 30/360, 30E/360, 30E/360.ISDA, ACT/360, ACT/365.FIXED, ACT/ACT.ISDA, ACT/365.ISDA, ACT/ACT.ICMA, ACT/ACT.ISMA, 1/1, ...
+
+        - payBusinessDayConvention: MODFOLLOWING, FOLLOWING, PRECEDING, ...
+
+        - payPaymentCalendar: EUTA, CHZU, GBLO, USNY, DEFR, ITMI, FRPA, ESMA, BEBR, JPTO, DKCO, NOOS, SEST, PLWA, ... calendars can be combined with "+"
+
+        - payAdjustment: ADJUSTED, UNADJUSTED, MAT_UNADJUSTED, ...
+
+        - payRollMethod: Standard, IMM, EOM, ...
+
+      parameters:
+        - $ref: '#/parameters/x_fcx_apikey'
+        - name: body
+          in: body
           schema:
-            $ref: "#/definitions/ApiResponse"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet:
+            type: object
+            example:
+              portfolio_components:
+                - type: etd_portfolio
+                  etd_portfolio:
+                    - line_no: 1
+                      product_id: FEXD
+                      maturity: 202812
+                      net_ls_balance: 10
+                    - line_no: 2
+                      product_id: OESX
+                      maturity: 202812
+                      call_put_flag: C
+                      exercise_price: 2400
+                      net_ls_balance: -10
+            properties:
+              snapshot:
+                $ref: '#/definitions/snapshot'
+              clearing_currency:
+                $ref: '#/definitions/clearing_currency'
+              is_cross_margined:
+                type: boolean
+                description: enable cross-margining between OTC and Fixed Income
+                example: True
+              portfolio_components:
+                type: array
+                description: array of portfolio components
+                items:
+                  type: object
+                  description: one portfolio component, only type and one structure relevant for the type is filled
+                  required:
+                    - type
+                  properties:
+                    type:
+                      type: string
+                      description: type of this component
+                      example: etd_portfolio
+                    etd_portfolio:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          line_no:
+                            $ref: '#/definitions/line_no'
+                          product_id:
+                            $ref: '#/definitions/product_id'
+                          maturity:
+                            $ref: '#/definitions/maturity'
+                          call_put_flag:
+                            $ref: '#/definitions/call_put_flag'
+                          exercise_price:
+                            $ref: '#/definitions/exercise_price'
+                          version_number:
+                            $ref: '#/definitions/version_number'
+                          iid:
+                            $ref: '#/definitions/iid'
+                          instrument_type:
+                            $ref: '#/definitions/instrument_type'
+                          exercise_style:
+                            $ref: '#/definitions/exercise_style'
+                          net_ea:
+                            $ref: '#/definitions/net_ea'
+                          net_ls_balance:
+                            $ref: '#/definitions/net_ls_balance'
+                        required:
+                          - line_no
+                          - net_ls_balance
+                    otc_csv:
+                      $ref: '#/definitions/otc_csv'
+                    otc_sensitivities:
+                      $ref: '#/definitions/otc_sensitivities'
+                    otc_cb202:
+                      $ref: '#/definitions/otc_cb202'
+                    otc_fpml:
+                      $ref: '#/definitions/otc_fpml'
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              clearing_currency: USDC
+              errors:
+                - line_no: 2
+                  error_msg: 'Line 1 instrument iid not recognized: 736947'
+              portfolio_margin:
+                - liquidation_group: PEQ01
+                  liquidation_group_split: PFI01_HP2_T0-99999
+                  initial_margin: 3161.708587
+                  market_risk: 3155.266149
+                  liquidity_addon: 6.442439
+                  long_option_credit: 0
+                  time_to_expiry_adjustment: 0
+                  premium_margin: 0
+                  market_risk_per_rms:
+                    - rms_name: SIMPLE STRESS VAR 3
+                      simulation_type: Historical
+                      rms_market_risk: 4991.692879
+                      weighting_factor: 0.51
+              drilldowns:
+                - line_no: 1
+                  product_id: OGBL
+                  call_put_flag: C
+                  exercise_price: 160
+                  version_number: '0'
+                  iid: 18249016
+                  maturity: 201806
+                  net_ls_balance: 10
+                  liquidation_group: PFI01
+                  liquidation_group_split: PFI01_HP2_T0-99999
+                  component_margin: 2382.083819
+                  component_margin_currency: USDC
+                  premium_margin: 0
+                  premium_margin_currency: USDC
+          schema:
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              clearing_currency:
+                $ref: '#/definitions/clearing_currency'
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    line_no:
+                      type: string
+                    error_msg:
+                      type: string
+              portfolio_margin:
+                type: array
+                description: Margin on LGS level, higher levels can be summed on UI. Also initial margin can be calculated as a sum of all components except premium margin
+                items:
+                  type: object
+                  properties:
+                    liquidation_group:
+                      $ref: '#/definitions/liquidation_group'
+                    liquidation_group_split:
+                      $ref: '#/definitions/liquidation_group_split'
+                    initial_margin:
+                      type: number
+                      description: Initial margin on liquidation group split level, equals to market risk plus add ons
+                    market_risk:
+                      type: number
+                      description: Market risk from ReportCP046
+                    liquidity_addon:
+                      type: number
+                      description: Liqu risk from ReportCP046
+                    long_option_credit:
+                      type: number
+                      description: Long option credit from ReportCP046
+                    time_to_expiry_adjustment:
+                      type: number
+                      description: Time to Expiry Adjustment a.k.a. TEA from ReportCP046, introducedwith Prisma R8.0
+                    premium_margin:
+                      type: number
+                      description: Premium margin from ReportCP046
+                    market_risk_per_rms:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          rms_name:
+                            type: string
+                            description: Risk Measure Set name
+                          simulation_type:
+                            type: string
+                            enum: [Historical, Stress, Event]
+                            description: Risk Measure Set type
+                          rms_market_risk:
+                            type: number
+                            description: RMS market risk before weighting
+                          weighting_factor:
+                            type: number
+                            description: RMS weighting factor to be applied before aggregation to LGS level
+              drilldowns:
+                type: array
+                description: Margin figures on position level. Full business key is used, it is not possible to map to input line_no one to one because positions may be aggregated or split
+                items:
+                  type: object
+                  properties:
+                    line_no:
+                      $ref: '#/definitions/line_no'
+                    product_id:
+                      $ref: '#/definitions/product_id'
+                    maturity:
+                      $ref: '#/definitions/maturity'
+                    call_put_flag:
+                      $ref: '#/definitions/call_put_flag'
+                    exercise_price:
+                      $ref: '#/definitions/exercise_price'
+                    version_number:
+                      $ref: '#/definitions/version_number'
+                    iid:
+                      $ref: '#/definitions/iid'
+                    instrument_type:
+                      $ref: '#/definitions/instrument_type'
+                    exercise_style:
+                      $ref: '#/definitions/exercise_style'
+                    net_ls_balance:
+                      $ref: '#/definitions/net_ls_balance'
+                    liquidation_group:
+                      $ref: '#/definitions/liquidation_group'
+                    liquidation_group_split:
+                      $ref: '#/definitions/liquidation_group_split'
+                    component_margin:
+                      $ref: '#/definitions/component_margin'
+                    component_margin_currency:
+                      $ref: '#/definitions/component_margin_currency'
+                    premium_margin:
+                      type: number
+                      description: Premium margin for the position
+                    premium_margin_currency:
+                      type: string
+                      description: Currency of premium margin - currency of the product, can be different from clearing currency
+              otc_drilldowns:
+                type: array
+                description: Margin figures and short trade desription on OTC trade level. Internal Trade Id is used as a key.
+                items:
+                  type: object
+                  properties:
+                    trade_id:
+                      $ref: '#/definitions/trade_id'
+                    liquidation_group:
+                      $ref: '#/definitions/liquidation_group'
+                    liquidation_group_split:
+                      $ref: '#/definitions/liquidation_group_split'
+                    npv:
+                      type: number
+                      description: Net Present Value of the trade in notional currency
+                    dv01:
+                      type: number
+                      description: DV01 sensitivity of the trade in notional currency
+                    component_margin:
+                      $ref: '#/definitions/component_margin'
+                    component_margin_currency:
+                      $ref: '#/definitions/component_margin_currency'
+                    type:
+                      $ref: '#/definitions/otc_type'
+                    pay:
+                      $ref: '#/definitions/pay'
+                    receive:
+                      $ref: '#/definitions/receive'
+                    notional:
+                      $ref: '#/definitions/notional'
+                    notional_currency:
+                      $ref: '#/definitions/notional_currency'
+                    maturity:
+                      $ref: '#/definitions/otc_maturity'
+  /otc_trade_details:
     post:
-      tags:
-      - "pet"
-      summary: "Add a new pet to the store"
-      description: ""
-      operationId: "addPet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
+      summary: OTC Trade Details
+      description: >-
+        Return a short human-readable description of OTC trade, e.g. to display on a GUI.
+        The description is not complete, i.e. it is not sufficient to evaluate the trade.
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/Pet"
-      responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    put:
-      tags:
-      - "pet"
-      summary: "Update an existing pet"
-      description: ""
-      operationId: "updatePet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/Pet"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-        405:
-          description: "Validation exception"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByStatus:
-    get:
-      tags:
-      - "pet"
-      summary: "Finds Pets by status"
-      description: "Multiple status values can be provided with comma separated strings"
-      operationId: "findPetsByStatus"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "status"
-        in: "query"
-        description: "Status values that need to be considered for filter"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-          enum:
-          - "available"
-          - "pending"
-          - "sold"
-          default: "available"
-        collectionFormat: "multi"
-      responses:
-        200:
-          description: "successful operation"
+        - $ref: '#/parameters/x_fcx_apikey'
+        - name: body
+          in: body
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid status value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByTags:
-    get:
-      tags:
-      - "pet"
-      summary: "Finds Pets by tags"
-      description: "Multiple tags can be provided with comma separated strings. Use\
-        \ tag1, tag2, tag3 for testing."
-      operationId: "findPetsByTags"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "tags"
-        in: "query"
-        description: "Tags to filter by"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
+            type: object
+            example:
+              portfolio_components:
+                - type: otc_csv
+                  otc_csv:
+                    csv: internalTradeID,tradeType,currency,effectiveDate,terminationDate,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod\n1,FRA,USDC,20/12/2018,20/08/2019,fixedLeg,0.15,,,100000000,3M,,,,,,,,ACT/360,,,,,floatingLeg,,,,100000000,3M,,,,,,,,ACT/360,,,,
+            properties:
+              snapshot:
+                $ref: '#/definitions/snapshot'
+              portfolio_components:
+                type: array
+                description: array of portfolio components
+                items:
+                  type: object
+                  description: one portfolio component, only type and one structure relevant for the type is filled
+                  required:
+                    - type
+                  properties:
+                    type:
+                      type: string
+                      description: type of this component
+                      example: etd_portfolio
+                    otc_csv:
+                      $ref: '#/definitions/otc_csv'
+                    otc_cb202:
+                      $ref: '#/definitions/otc_cb202'
+                    otc_fpml:
+                      $ref: '#/definitions/otc_fpml'
       responses:
-        200:
-          description: "successful operation"
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              otc_trade_details:
+                - trade_id: "1"
+                  type: FRA
+                  pay: Fixed 0.15%
+                  receive: USDC-USDCIBOR-3M
+                  notional: 100000000
+                  notional_currency: USDC
+                  maturity: 0.8Y
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid tag value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-      deprecated: true
-  /pet/{petId}:
-    get:
-      tags:
-      - "pet"
-      summary: "Find pet by ID"
-      description: "Returns a single pet"
-      operationId: "getPetById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to return"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - api_key: []
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              otc_trade_details:
+                type: array
+                items:
+                  type: object
+                  description: details of one OTC trade
+                  properties:
+                    trade_id:
+                      $ref: '#/definitions/trade_id'
+                    type:
+                      $ref: '#/definitions/otc_type'
+                    pay:
+                      $ref: '#/definitions/pay'
+                    receive:
+                      $ref: '#/definitions/receive'
+                    notional:
+                      $ref: '#/definitions/notional'
+                    notional_currency:
+                      $ref: '#/definitions/notional_currency'
+                    maturity:
+                      $ref: '#/definitions/otc_maturity'
+  /otc_sensitivites:
     post:
-      tags:
-      - "pet"
-      summary: "Updates a pet in the store with form data"
-      description: ""
-      operationId: "updatePetWithForm"
-      consumes:
-      - "application/x-www-form-urlencoded"
-      produces:
-      - "application/json"
-      - "application/xml"
+      summary: OTC Sensitivities
+      description: >-
+        Return a table of DV01 (delta) sensitivities of OTC portfolio, per curve and maturity bucket. The sensitivity table is accepted as `otc_sensitivities` input for `estimator` request and can be used instead of the whole OTC portfolio for faster margin computation.
+      externalDocs:
+        url: https://github.com/Deutsche-Boerse-Risk/CloudPrismaMarginEstimator/raw/master/templates/otc/OTC_sensitivities_template.xlsm
+        description: Example of the DV01 Sensitivities table as Excel sheet
       parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet that needs to be updated"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "name"
-        in: "formData"
-        description: "Updated name of the pet"
-        required: false
-        type: "string"
-      - name: "status"
-        in: "formData"
-        description: "Updated status of the pet"
-        required: false
-        type: "string"
+        - $ref: '#/parameters/x_fcx_apikey'
+        - name: body
+          in: body
+          schema:
+            type: object
+            example:
+              portfolio_components:
+                - type: otc_csv
+                  otc_csv:
+                    csv: internalTradeID,tradeType,currency,effectiveDate,terminationDate,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod\n1,FRA,USDC,20/12/2018,20/08/2019,fixedLeg,0.15,,,100000000,3M,,,,,,,,ACT/360,,,,,floatingLeg,,,,100000000,3M,,,,,,,,ACT/360,,,,
+            properties:
+              snapshot:
+                $ref: '#/definitions/snapshot'
+              portfolio_components:
+                type: array
+                description: array of portfolio components
+                items:
+                  type: object
+                  description: one portfolio component, only type and one structure relevant for the type is filled
+                  required:
+                    - type
+                  properties:
+                    type:
+                      type: string
+                      description: type of this component
+                      example: otc_csv
+                    otc_csv:
+                      $ref: '#/definitions/otc_csv'
+                    otc_cb202:
+                      $ref: '#/definitions/otc_cb202'
+                    otc_fpml:
+                      $ref: '#/definitions/otc_fpml'
       responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    delete:
-      tags:
-      - "pet"
-      summary: "Deletes a pet"
-      description: ""
-      operationId: "deletePet"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
-        type: "string"
-      - name: "petId"
-        in: "path"
-        description: "Pet id to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /store/order:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              curves:
+                - USDC.EONIA
+              dv01_per_maturity:
+                - maturity: ON
+                  dv01:
+                    - 123.456
+              csv: Maturity,USDC.EONIA\nON,123.456
+          schema:
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              curves:
+                type: array
+                items:
+                  type: string
+                  description: name of a interest rate curve
+                  example: USDC.USDCIBOR.1M
+              dv01_per_maturity:
+                type: array
+                items:
+                  type: object
+                  description: DV01 for different curves of one maturity
+                  properties:
+                    maturity:
+                      $ref: '#/definitions/otc_maturity'
+                    dv01:
+                      type: array
+                      items:
+                        type: number
+                        example: -284.40
+              csv:
+                type: string
+                description: the DV01 table as one string in format that can be directly submitted to margin estimation
+  # @dev the `URI` SCHEMA is NOT AUTHORITATIVE, For the sake of Sanity and Readability we just use /{component}
+  # we can figure out the actual `URN` SCHEMA later
+  /greeks:
     post:
-      tags:
-      - "store"
-      summary: "Place an order for a pet"
-      description: ""
-      operationId: "placeOrder"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
+      summary: Greek Calculation Request
+      description: >-
+        Calculate analytical greeks (sensitivities) for given exchange traded instruments.
+
+        The instruments are specified by a technical `iid` that can be obtained by `series` query.
+        Two types of greeks are 'typically' (read: easier to?) offered:
+
+        - numerical derivative of change in instrument price in product currency w.r.t. change in given variable, e.g. DELTA is w.r.t. change in underlying price
+
+        - the above greek converted to USDC:
+          - USDCO_DELTA, USDCO_GAMMA: (_underlying price_ + _price offset_) \* _greek_ \* _fx conversion to USDC_
+          - USDCO_RHO, USDCO_THETA, USDCO_VEGA: _greek_ \* _fx conversion to USDC_
+
+        To get a position greek, the instrument greek has to be multiplied by position size and trade unit value (TUV).
       parameters:
-      - in: "body"
-        name: "body"
-        description: "order placed for purchasing the pet"
-        required: true
-        schema:
-          $ref: "#/definitions/Order"
-      responses:
-        200:
-          description: "successful operation"
+        - $ref: '#/parameters/x_fcx_apikey'
+        - name: body
+          in: body
           schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid Order"
-  /store/order/{orderId}:
-    get:
-      tags:
-      - "store"
-      summary: "Find purchase order by ID"
-      description: "For valid response try integer IDs with value >= 1 and <= 10.\
-        \ Other values will generated exceptions"
-      operationId: "getOrderById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of pet that needs to be fetched"
-        required: true
-        type: "integer"
-        maximum: 10
-        minimum: 1
-        format: "int64"
+            type: object
+            example:
+              greek_types:
+                - USDCO_DELTA
+                - USDCO_VEGA
+              underlying_shifts_rel:
+                - -0.01
+                - 0.01
+              iids:
+                - 26807581
+                - 27471356
+            properties:
+              snapshot:
+                $ref: '#/definitions/snapshot'
+              greek_types:
+                $ref: '#/definitions/greek_types'
+              underlying_shifts_rel:
+                $ref: '#/definitions/underlying_shifts_rel'
+              iids:
+                $ref: '#/definitions/iids'
+            required:
+              - greek_types
+              - iids
       responses:
-        200:
-          description: "successful operation"
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              greek_types:
+                - USDCO_DELTA
+              underlying_shifts_rel:
+                - -0.01
+                - 0.01
+              greeks:
+                - iid: 26807581
+                  values: [[674.0,565.0]]
+                - iid: 27471356
+                  values: [[0.65957,0.68090]]
           schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-    delete:
-      tags:
-      - "store"
-      summary: "Delete purchase order by ID"
-      description: "For valid response try integer IDs with positive integer value.\
-        \ Negative or non-integer values will generate API errors"
-      operationId: "deleteOrder"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of the order that needs to be deleted"
-        required: true
-        type: "integer"
-        minimum: 1
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-  /store/inventory:
-    get:
-      tags:
-      - "store"
-      summary: "Returns pet inventories by status"
-      description: "Returns a map of status codes to quantities"
-      operationId: "getInventory"
-      produces:
-      - "application/json"
-      parameters: []
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
-      security:
-      - api_key: []
-  /user/createWithArray:
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              greek_types:
+                $ref: '#/definitions/greek_types'
+              underlying_shifts_rel:
+                $ref: '#/definitions/underlying_shifts_rel'
+              greeks:
+                type: array
+                items:
+                  type: object
+                  description: Array of arrays of greeks for given instrument per greek type and per underlying shift rel, in the order given by type and shift vectors
+                  properties:
+                    iid:
+                      $ref: '#/definitions/iid'
+                    values:
+                      type: array
+                      items:
+                        type: number
+  /stressmatrix:
     post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithArrayInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
+      summary: Stress Matrix Request
+      description: >-
+        Calculate theoretical prices of given exchange traded instruments in stressed scenarios.
+        The scenario can have shifted underlying price and/or volatility.
+
+        For futures, volatility shift has no effect and the underlying price shift changes
+        directly the future price, theoretical pricing model is not used.
       parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
+        - $ref: '#/parameters/x_fcx_apikey'
+        - name: body
+          in: body
+          schema:
+            type: object
+            example:
+              underlying_shifts_rel:
+                - 0.01
+              volatility_shifts:
+                - -0.10
+                - 0.10
+              volatility_shift_type: ABSOLUTE
+              iids:
+                - 26807581
+                - 27471356
+            properties:
+              snapshot:
+                $ref: '#/definitions/snapshot'
+              underlying_shifts_rel:
+                $ref: '#/definitions/underlying_shifts_rel'
+              volatility_shifts:
+                $ref: '#/definitions/volatility_shifts'
+              volatility_shift_type:
+                $ref: '#/definitions/volatility_shift_type'
+              iids:
+                $ref: '#/definitions/iids'
+            required:
+              - iids
       responses:
-        default:
-          description: "successful operation"
-  /user/createWithList:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithListInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/{username}:
+        '200':
+          description: OK
+          headers: {}
+          examples:
+            application/json:
+              business_date: 20200829
+              live: false
+              live_timestamp: 0
+              underlying_shifts_rel:
+                - 0.01
+              volatility_shifts:
+                - -0.1
+                - 0.1
+              volatility_shift_type: RELATIVE
+              stress_matrix:
+                - iid: 26807581
+                  values: [[0.65957],[0.68090]]
+                - iid: 27471356
+                  values: [[0.65957],[0.68090]]
+          schema:
+            type: object
+            properties:
+              business_date:
+                $ref: '#/definitions/business_date'
+              live:
+                $ref: '#/definitions/live'
+              live_timestamp:
+                $ref: '#/definitions/live_timestamp'
+              underlying_shifts_rel:
+                $ref: '#/definitions/underlying_shifts_rel'
+              volatility_shifts:
+                $ref: '#/definitions/volatility_shifts'
+              volatility_shift_type:
+                $ref: '#/definitions/volatility_shift_type'
+              stress_matrix:
+                type: array
+                items:
+                  type: object
+                  description: Array of arrays of prices for given instrument per underlying price shift and volatility shift, in the order given by price and vola shift vectors
+                  properties:
+                    iid:
+                      $ref: '#/definitions/iid'
+                    values:
+                      type: array
+                      items:
+                        type: array
+                        items:
+                          type: number
+  /config/{param}:
     get:
-      tags:
-      - "user"
-      summary: "Get user by user name"
-      description: ""
-      operationId: "getUserByName"
-      produces:
-      - "application/json"
-      - "application/xml"
+      summary: Read configuration parameter
       parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be fetched. Use user1 for testing. "
-        required: true
-        type: "string"
+        - $ref: '#/parameters/x_fcx_apikey'
+        - name: param
+          in: path
+          description: name of the parameter
+          required: true
+          type: string
       responses:
         200:
-          description: "successful operation"
+          description: OK
+          examples:
+            application/json:
+              max_body_size: 262144000
           schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-    put:
-      tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
-    delete:
-      tags:
-      - "user"
-      summary: "Delete user"
-      description: "This can only be done by the logged in user."
-      operationId: "deleteUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be deleted"
-        required: true
-        type: "string"
-      responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-  /user/login:
-    get:
-      tags:
-      - "user"
-      summary: "Logs user into the system"
-      description: ""
-      operationId: "loginUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "query"
-        description: "The user name for login"
-        required: true
-        type: "string"
-      - name: "password"
-        in: "query"
-        description: "The password for login in clear text"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          headers:
-            X-Expires-After:
-              type: "string"
-              format: "date-time"
-              description: "date in UTC when token expires"
-            X-Rate-Limit:
-              type: "integer"
-              format: "int32"
-              description: "calls per hour allowed by the user"
-          schema:
-            type: "string"
-        400:
-          description: "Invalid username/password supplied"
-  /user/logout:
-    get:
-      tags:
-      - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters: []
-      responses:
-        default:
-          description: "successful operation"
-  /user:
-    post:
-      tags:
-      - "user"
-      summary: "Create user"
-      description: "This can only be done by the logged in user."
-      operationId: "createUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-securityDefinitions:
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "https://petstore.swagger.io/oauth/authorize"
-    flow: "implicit"
-    scopes:
-      read:pets: "read your pets"
-      write:pets: "modify pets in your account"
+            type: object
+            properties:
+              max_body_size:
+                type: number
+                description: maximum allowed body size of request in bytes
+
+parameters:
+  x_fcx_apikey:
+    name: X-FCX-APIKEY
+    in: header
+    description: your key, obtain it by registering at [FREIGHT.CX](https://console.developer.freight.cx/)
+    type: string
+    required: true
+  extrafields:
+    name: extrafields
+    in: query
+    description: comma-separated list of optional fields that should be returned in addition to the default set of response fields. Alternatively can be specified also as multiple parameter instances instead of comma-separated list.
+    required: false
+    collectionFormat: csv
+    type: array
+    items:
+      type: string
+  business_date:
+    name: business_date
+    in: query
+    type: number
+    description: Business date as of which the result is calculated, in YYYYMMDD format
+    ## NOTE: WE USE BURGESS TO DERVICE BUSINESS DAY CONVENTIONS
+    ## SEE: https://github.com/freight-trust/burgess
+    ##  FROM BURGESS: https://github.com/freight-trust/burgess/blob/master/logic/DayType.json
+#    ]
+# "enumBusiness": {
+ #   "CommodityBusiness":  "When calculating the number of days between two dates the count includes only commodity business days.",
+ #   [ "$lib": "FpML_5_10", "CME_SubmissionIRS_1_0", "CME_ClearedConfirm_1_17", "$value": "CommodityBusiness",
+ #  "CurrencyBusiness":  "When calculating the number of days between two dates the count includes only currency business days.",
+ #   [ "$lib": "FpML_5_10", "CME_SubmissionIRS_1_0", "CME_ClearedConfirm_1_17", "$value": "CurrencyBusiness",
+ # "ExchangeBusiness":  "When calculating the number of days between two dates the count includes only stock exchange business days.",
+ #   [ "$lib": "FpML_5_10", "CME_SubmissionIRS_1_0", "CME_ClearedConfirm_1_17", "$value": "ExchangeBusiness",
+ # "ScheduledTradingDay":  "When calculating the number of days between two dates the count includes only scheduled trading days."
+ #   [ "$lib": "FpML_5_10", "CME_SubmissionIRS_1_0", "CME_ClearedConfirm_1_17" "$value": "ScheduledTradingDay" ]
+ # }
+  live:
+    name: live
+    in: query
+    description: Is the snapshot live (meaning intraday or start-of-day)? False for end-of-day.
+    type: boolean
+  live_timestamp:
+    name: live_timestamp
+    in: query
+    type: number
+    description: Timestamp as of which the result is calculated, in milliseconds from epoch. Zero means start-of-day.
+  business_date_from:
+    name: business_date_from
+    in: query
+    type: number
+    description: Start of a date range, in YYYYMMDD format
+  business_date_to:
+    name: business_date_to
+    in: query
+    type: number
+    description: End of a date range, in YYYYMMDD format
+
 definitions:
-  ApiResponse:
-    type: "object"
+  business_date:
+    type: number
+    description: Business date as of which the result is calculated, in YYYYMMDD format
+    example: 20181205
+  live:
+    type: boolean
+    description: Is the snapshot live (meaning intraday or start-of-day)? False for end-of-day. In request, False without any date means last end-of-day.
+    example: false
+  live_timestamp:
+    type: number
+    description: Timestamp as of which the result is calculated, in milliseconds from epoch. Zero means start-of-day.
+    example: 0
+  otc_available:
+    type: boolean
+    description: Is OTC available in the snapshot? Snapshot can exist without OTC, then only ETD portfolio can be evaluated. Snapshot without ETD is not possible. Live snapshots can be marked as otc_available which means OTC portfolio will be evaluated, however the OTC market data are from start-of-day, not from the particular timestamp.
+    example: true
+  snapshot:
+    type: object
+    description: Optional point in time as of which the result is calculated. If only business_date is specified, latest snapshot from that business date is used. If only live=False is specified, last EOD is used. The timestamp is used only when live is true.
     properties:
-      code:
-        type: "integer"
-        format: "int32"
-      type:
-        type: "string"
-      message:
-        type: "string"
-  Category:
-    type: "object"
+      business_date:
+        $ref: '#/definitions/business_date'
+      live:
+        $ref: '#/definitions/live'
+      live_timestamp:
+        $ref: '#/definitions/live_timestamp'
+  clearing_currency:
+    type: string
+    description: currency code of the currency in which the result should be calculated
+    default: USDC
+    example: USDC
+  product_id:
+    type: string
+    description: Unique identifier of a product
+    example: OESX
+  contract_maturity:
+    type: number
+    description: Maturity of the instrument in YYYYMM format. Corresponds to contract year/month as shown on Eurex webpage
+    example: 202812
+  expiry_maturity:
+    type: number
+    description: Internal value used by Prisma
+    example: 202812
+  call_put_flag:
+    type: string
+    enum: [C,P,'']
+    description: Call or put flag for options. Empty for futures
+    example: P
+  exercise_price:
+    type: number
+    description: Exercise price for options, e.g. 10038.77. Empty for futures
+    example: 2400.0
+  version_number:
+    type: string
+    description: Version number. Valid for both options and futures
+    example: '0'
+    default: '0'
+  iid:
+    type: number
+    description: Technical instrument ID. Needed for analytical requests - greeks, stress prices. If provided in request, all other key attributes are ignored
+    example: 27471356
+  line_no:
+    type: number
+    description: Line number, used when reporting errors
+    example: 1
+  maturity:
+    type: number
+    description: Maturity of the instrument in YYYYMM or YYYYMMDD format. Day mandatory for flex. Corresponds to contract year/month as shown on Eurex webpage
+    example: 202812
+  instrument_type:
+    type: string
+    enum: [Future,Option,Flex Future,Flex Option]
+    description: Mandatory for flex, ignored otherwise
+    example: Flex Option
+  exercise_style:
+    type: string
+    enum: [USDCOPEAN,AMERICAN,'']
+    description: Exercise style for options. Mandatory for Flex Option, ignored for standard options - product setup used
+    example: AMERICAN
+  exercise_style_flag:
+    type: string
+    enum: [E,A,'']
+    description: E for European, A for American, empty for futures; can differ from product exercise style for Flex Option
+    example: A
+  net_ea:
+    type: number
+    description: Exercised/Allocated minus Assigned/Notified balance
+    example: 0
+  net_ls_balance:
+    type: number
+    description: Long/short balance, negative for short
+    example: -100
+  otc_csv:
+    type: object
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Category"
-  Pet:
-    type: "object"
+      csv:
+        type: string
+        description: OTC portfolio as one string in CSV, 
+        ## MARGIN SCRIPT
+        example: internalTradeID,tradeType,currency,effectiveDate,terminationDate,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod,legType,legSpread,legIndex,interestFixedAmount,notional,paymentPeriod,periodStartVNS,compounding,compoundingIndexPeriod,stub,firstRate,firstInterpolationTenor,secondInterpolationTenor,dayCountMethod,businessDayConvention,paymentCalendar,adjustment,rollMethod\n1,FRA,USDC,20/12/2018,20/08/2019,fixedLeg,0.15,,,100000000,3M,,,,,,,,ACT/360,,,,,floatingLeg,,,,100000000,3M,,,,,,,,ACT/360,,,,
     required:
-    - "name"
-    - "photoUrls"
+      - csv
+  otc_cb202:
+    type: object
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-      category:
-        $ref: "#/definitions/Category"
-      name:
-        type: "string"
-        example: "doggie"
-      photoUrls:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          type: "string"
-          xml:
-            name: "photoUrl"
-      tags:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          xml:
-            name: "tag"
-          $ref: "#/definitions/Tag"
-      status:
-        type: "string"
-        description: "pet status in the store"
-        enum:
-        - "available"
-        - "pending"
-        - "sold"
-    xml:
-      name: "Pet"
-  Tag:
-    type: "object"
+      member:
+        type: string
+        description: optional, will be matched against RC tag
+      account:
+        type: string
+        description: optional, will be matched against acctTypGrp tag or riskNettingUnit tag, if not given P account is assumed
+        default: P
+      legal_entity:
+        type: string
+        description: optional, will be matched against srcSysLEId tag
+      xml:
+        type: string
+        description: EurexOTC report CB202 or report CB207 describing trades as a single string
+    required:
+      - xml
+  otc_fpml:
+    type: object
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Tag"
-  Order:
-    type: "object"
+      party:
+        type: string
+        description: matched against partyId tag
+      xml:
+        type: string
+        description: FpML describing trades as a single string
+    required:
+      - party
+      - xml
+  otc_sensitivities:
+    type: object
+    ## PRAISE 
+    description: Table of DV01 sensitivities (a.k.a. deltas) of the OTC portfolio. There can be only one component of this type as input for margin calculation.
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-      petId:
-        type: "integer"
-        format: "int64"
-      quantity:
-        type: "integer"
-        format: "int32"
-      shipDate:
-        type: "string"
-        format: "date-time"
-      status:
-        type: "string"
-        description: "Order Status"
-        enum:
-        - "placed"
-        - "approved"
-        - "delivered"
-      complete:
-        type: "boolean"
-    xml:
-      name: "Order"
-  User:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      username:
-        type: "string"
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-      password:
-        type: "string"
-      phone:
-        type: "string"
-      userStatus:
-        type: "integer"
-        format: "int32"
-        description: "User Status"
-    xml:
-      name: "User"
-externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
+      csv:
+        type: string
+        description: aggregated sensitivities in CSV format known from Margin Calculator GUI, as a single string. Example shows the full header row with curves and one row for 1M maturity. Supported maturities are 1M to 11M, 1Y, 15M, 18M, 21M, 2Y to 12Y, 15Y, 20Y, 25Y, 30Y, 40Y, 50Y
+        ## LOL LIBOR
+        ## LESS THAN SIX MONTHS AWAY!!!
+        example: Maturity,CHF.LIBOR.1M,CHF.LIBOR.2M,CHF.LIBOR.3M,CHF.LIBOR.6M,CHF.SARON.ON,DKK.CIBOR.6M,USDC.EONIA.ON,USDC.USDCIBOR.1M,USDC.USDCIBOR.1Y,USDC.USDCIBOR.3M,USDC.USDCIBOR.6M,GBP.LIBOR.1M,GBP.LIBOR.1Y,GBP.LIBOR.2M,GBP.LIBOR.3M,GBP.LIBOR.6M,GBP.SONIA.ON,JPY.LIBOR.1M,JPY.LIBOR.2M,JPY.LIBOR.3M,JPY.LIBOR.6M,JPY.TONAR.ON,NOK.NIBOR.6M,PLN.WIBOR.6M,SEK.STIBOR.3M,USD.FEDFUNDS.ON,USD.LIBOR.1M,USD.LIBOR.2M,USD.LIBOR.3M,USD.LIBOR.6M\n1M,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+    required:
+    - csv
+  liquidation_group:
+    type: string
+    description: Liquidation group
+  liquidation_group_split:
+    type: string
+    description: Liquidation group split
+  component_margin:
+    type: number
+    description: Initial margin on position level is a approximation based on compVaR. compVaR is calculated to split VaR among positions, then other add-ons are added proportionally to compVaR
+  component_margin_currency:
+    type: string
+    description: Currency of component margin
+  trade_id:
+    type: string
+    description: internalTradeID or tradeId as submitted in the request
+    example: "1"
+  otc_type:
+    type: string
+    description: FRA, FixedFloat, Basis, OIS or Inflation
+    example: FRA
+  pay:
+    type: string
+    description: pay leg, either Fixed rate or index plus optional spread
+    example: Fixed 0.15%
+  receive:
+    type: string
+    description: receive leg, either Fixed rate or index plus optional spread
+    ## WE COULD USE AN INTER PROTOCOL OFFER RATE? 
+    ## OH YA. 
+    example: USDC-USDCIBOR-3M +2bp
+  notional:
+    type: number
+    description: trade notional
+    example: 100000000
+  notional_currency:
+    type: string
+    description: notional currency
+    example: USDC
+  otc_maturity:
+    type: string
+    description: total maturity since effective date, in years
+    example: 0.8Y
+  greek_types:
+    type: array
+    description: Greek types, array with the following valid values
+    items:
+      type: string
+      enum: [DELTA, GAMMA, RHO, THETA, VEGA, DV01, USDCO_DELTA, USDCO_GAMMA, USDCO_RHO, USDCO_THETA, USDCO_VEGA]
+    example: [USDCO_DELTA, USDCO_VEGA]
+  underlying_shifts_rel:
+    type: array
+    description: Vector of underlying price shifts, optional. If not given then the current underlying price is used
+    items:
+      type: number
+    example: [-0.01, 0.01]
+  iids:
+    type: array
+    description: Technical ids of instruments, see series resource
+    items:
+      type: number
+    example: [26807581, 27471356]
+  volatility_shifts:
+    type: array
+    description: Vector of volatility shifts, the unit is specified by volatility shift type. Shifted volatility is floored by 0.01 before theoretical price calculation
+    items:
+      type: number
+    example: [-0.05, 0.05]
+  volatility_shift_type:
+    type: string
+    enum: [RELATIVE, ABSOLUTE]
+    description: Volatility shift type, either relative, vola 20% shifted by 0.1 relative = 22%, or absolute, vola 20% shifted by 0.1 absolute = 20.1%
+    example: ABSOLUTE
